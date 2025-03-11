@@ -27,7 +27,6 @@ df = pd.DataFrame(data, columns=columns)
 # Convert to num
 num_cols = ["% Identity", "Alignment Length", "Mismatches", "Gap Opens", 
             "Left Pos", "Right Pos", "Subject Start", "Subject End", "E-value", "Bit Score"]
-
 for col in num_cols:
     df[col] = pd.to_numeric(df[col]) 
 
@@ -39,6 +38,8 @@ df_filtered["Query Coverage"] = df_filtered.apply(
     lambda row: (row["Right Pos"] - row["Left Pos"] + 1) / query_lengths.get(row["Query ID"]), axis=1
 )
 
-df_comparison = df_filtered[["Query ID", "Subject ID", "Left Pos", "Right Pos", "Query Coverage", "Bit Score", "E-value"]]
+df_filtered["Query Length"] = df_filtered["Query ID"].map(query_lengths)
+
+df_comparison = df_filtered[["Query ID", "Subject ID", "Query Length", "Left Pos", "Right Pos", "Query Coverage", "Bit Score", "E-value"]]
 
 df_comparison.to_csv("first_task_output.tsv", sep="\t", index = False)
