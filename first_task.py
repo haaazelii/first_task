@@ -39,9 +39,10 @@ df_filtered["Query Coverage"] = df_filtered.apply(
 )
 
 df_filtered["Query Length"] = df_filtered["Query ID"].map(query_lengths)
+df_filtered["Subject Length"] = df_filtered["Subject ID"].map(query_lengths)  # ← this is new
 
-df_comparison = df_filtered[["Query ID", "Subject ID", "Query Length", "Left Pos", 
-                             "Right Pos", "Subject Start", "Subject End", "Query Coverage", 
-                             "Bit Score", "E-value"]]
+df_comparison = df_filtered[["Query ID", "Subject ID", "Query Length", "Subject Length",
+                             "Left Pos", "Right Pos", "Subject Start", "Subject End", 
+                             "Query Coverage", "Bit Score", "E-value"]]
 
 df_comparison.to_csv("first_task_output.tsv", sep="\t", index = False)
