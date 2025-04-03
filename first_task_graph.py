@@ -22,7 +22,8 @@ reversed_df["Subject End"] = df["Right Pos"]
 
 df_all = pd.concat([df, reversed_df], ignore_index=True)
 df_all = df_all.drop_duplicates()
-df_all = df_all.sort_values(by=["Query ID", "Subject ID"])
+df_all = df_all.sort_values(by=["Query ID", "Left Pos"])
+df_all.to_csv("first_task_output_with_reversed.tsv", sep="\t", index=False)
 
 out_dir = "query_alignment_graphs"
 os.makedirs(out_dir, exist_ok=True)
