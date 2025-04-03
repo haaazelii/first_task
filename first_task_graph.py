@@ -3,13 +3,34 @@ import matplotlib.pyplot as plt
 import os
 
 df = pd.read_csv("first_task_output.tsv", sep="\t")
+df = df.iloc[:, :-3]
+
+# extract the reversed match for graphing
+reversed_df = df.copy()
+
+reversed_df["Query ID"] = df["Subject ID"]
+reversed_df["Subject ID"] = df["Query ID"]
+
+reversed_df["Query Length"] = df["Subject Length"]
+reversed_df["Subject Length"] = df["Query Length"]
+
+reversed_df["Left Pos"] = df["Subject Start"]
+reversed_df["Right Pos"] = df["Subject End"]
+
+reversed_df["Subject Start"] = df["Left Pos"]
+reversed_df["Subject End"] = df["Right Pos"]
+
+df_all = pd.concat([df, reversed_df], ignore_index=True)
+df_all = df_all.drop_duplicates()
+df_all = df_all.sort_values(by=["Query ID", "Subject ID"])
+
 out_dir = "query_alignment_graphs"
 os.makedirs(out_dir, exist_ok=True)
 
 # for each query
-for query in df["Query ID"].unique():
+for query in df_all["Query ID"].unique():
     # subset for current query
-    subset = df[df["Query ID"] == query]
+    subset = df_all[df_all["Query ID"] == query]
     length = subset["Query Length"].iloc[0]
 
     fig, ax = plt.subplots(figsize=(10, 1.5 + 0.5 * len(subset)))
@@ -28,8 +49,8 @@ for query in df["Query ID"].unique():
 
     # plot subjects
     for i, row in enumerate(reversed(list(subset.itertuples())), 1):
-        left_pos = row._4 
-        right_pos = row._5  
+        left_pos = row._5 
+        right_pos = row._6  
         subject = row._2 
         ax.hlines(
             y=i, 
