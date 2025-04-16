@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 
-file_path = "ssearch.out" 
+file_path = "/Users/hazel/Desktop/lab/first_task/data/ssearch.out" 
 
 query_lengths = {} 
 filtered_lines = [] 

@@ -1,7 +1,7 @@
 import csv
 
-input_file = "cdd.out"
-output_file = "cdd_output.tsv"
+input_file = "/Users/hazel/Desktop/lab/first_task/data/cdd.out"
+output_file = "/Users/hazel/Desktop/lab/first_task/data/cdd_output.tsv"
 
 columns = [
     "Query ID", "query length", "CDD ID", "CDD length", "evalue", "bit score",

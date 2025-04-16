@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 import os
 
 # Load subject match data
-df = pd.read_csv("first_task_output.tsv", sep="\t")
+df = pd.read_csv("/Users/hazel/Desktop/lab/first_task/data/first_task_output.tsv", sep="\t")
 df = df.iloc[:, :-3]
 
 # Load CDD data
-cdd_df = pd.read_csv("cdd_output.tsv", sep="\t")
+cdd_df = pd.read_csv("/Users/hazel/Desktop/lab/first_task/data/cdd_output.tsv", sep="\t")
 
 # Filter for significant CDD hits only
 cdd_df = cdd_df[cdd_df["evalue"] < 1e-5]
@@ -28,9 +28,9 @@ reversed_df["Subject End"] = df["Right Pos"]
 df_all = pd.concat([df, reversed_df], ignore_index=True)
 df_all = df_all.drop_duplicates()
 df_all = df_all.sort_values(by=["Query ID", "Left Pos"])
-df_all.to_csv("first_task_output_with_reversed.tsv", sep="\t", index=False)
+df_all.to_csv("/Users/hazel/Desktop/lab/first_task/data/first_task_output_with_reversed.tsv", sep="\t", index=False)
 
-out_dir = "query_alignment_graphs"
+out_dir = "/Users/hazel/Desktop/lab/first_task/query_alignment_graphs"
 os.makedirs(out_dir, exist_ok=True)
 
 # for each query
