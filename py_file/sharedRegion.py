@@ -2,7 +2,7 @@
 # from CDD to identify conserved regions across proteins. It highlights regions shared
 # by a user-defined fraction of proteins.
 
-# for ssearch output and cdd output
+# for ssearch output and rescued cdd output
 
 import pandas as pd
 import re
@@ -10,7 +10,7 @@ import argparse
 import matplotlib.pyplot as plt
 import os
 
-# sample command: python3 first_task.py -ssi () -cddi () -cdde () -cov () -outdir ()
+# sample command: python3 sharedRegion.py -ssi () -cddi () -cdde () -cov () -outdir ()
 parser = argparse.ArgumentParser()
 parser.add_argument("-ssi", required=True, help="Path to ssearch input file.")
 parser.add_argument("-cddi", required=True, help="Path to CDD input file.")
@@ -19,21 +19,21 @@ parser.add_argument("-cov", required=True, type=float, help="Coverage cutoff for
 parser.add_argument("-outdir", required=True, help="Directory to save PNG graphs")
 args = parser.parse_args()
 
-# for ssearch input to output
+# ssearch input
+length_records = []
 ssearch_input = args.ssi
-query_lengths = {}
 filtered_lines = []
 
 with open(ssearch_input, "r") as file:
     for line in file:
-        # store query length
-        match = re.match(r"# Query: (\S+)  - (\d+) aa", line)
+        match = re.match(r"# Query:\s+(\S+)\s+-\s+(\d+)\s+aa", line)
         if match:
-            query_id = match.group(1)
-            query_lengths[query_id] = int(match.group(2))
-        # store only non-header lines
+            length_records.append((match.group(1), int(match.group(2))))
         elif not line.startswith("#"):
             filtered_lines.append(line)
+
+length_df = pd.DataFrame(length_records, columns=["ID", "Length"])
+length_lookup = length_df.set_index("ID")["Length"].to_dict()
 
 columns = [
     "Query ID", "Subject ID", "% Identity", "Alignment Length", "Mismatches", "Gap Opens", 
@@ -44,7 +44,6 @@ data = [line.split("\t") for line in filtered_lines]
 df = pd.DataFrame(data, columns=columns)
 count = len(pd.concat([df["Query ID"], df["Subject ID"]]).drop_duplicates())
 
-# Convert numeric columns
 num_cols = [
     "% Identity", "Alignment Length", "Mismatches", "Gap Opens", 
     "Left Pos", "Right Pos", "Subject Start", "Subject End", "E-value", "Bit Score"
@@ -52,16 +51,16 @@ num_cols = [
 for col in num_cols:
     df[col] = pd.to_numeric(df[col])
 
-# Remove self comparisons
 df_filtered = df[df["Query ID"] != df["Subject ID"]].copy()
 
-# Compute Qcov
-df_filtered["Query Coverage"] = df_filtered.apply(
-    lambda row: (row["Right Pos"] - row["Left Pos"] + 1) / query_lengths.get(row["Query ID"]), axis=1
-)
+df_filtered["Query Length"] = df_filtered["Query ID"].map(length_lookup)
+df_filtered["Subject Length"] = df_filtered["Subject ID"].map(length_lookup)
 
-df_filtered["Query Length"] = df_filtered["Query ID"].map(query_lengths)
-df_filtered["Subject Length"] = df_filtered["Subject ID"].map(query_lengths)
+def compute_coverage(row):
+    qlen = row["Query Length"]
+    return (row["Right Pos"] - row["Left Pos"] + 1) / qlen
+
+df_filtered["Query Coverage"] = df_filtered.apply(compute_coverage, axis=1)
 
 df_comparison = df_filtered[[
     "Query ID", "Subject ID", "Query Length", "Subject Length",
@@ -71,24 +70,44 @@ df_comparison = df_filtered[[
 
 df = df_comparison.iloc[:, :-3]
 
-# for CDD input to output
-cdd_cols = ["Query ID","query length","CDD ID","CDD length","evalue","bit score",
-            "q. start","q. end","% query coverage per hsp","s. start","s. end"]
-
+# for CDD input 
+cdd_cols = ["Query ID","query length","CDD ID","evalue","q. start","q. end","hit type"]
 cdd_rows = []
+
 with open(args.cddi) as fh:
     for ln in fh:
         if ln.startswith('#'):
             continue
-        parts = ln.rstrip('\n').split('\t')
-        if len(parts) >= 11:
-            cdd_rows.append(parts[:11])
+        parts = ln.strip().split('\t')
+
+        query_info = parts[1]
+        query_id, query_len_str = query_info.rsplit(':', 1)
+        query_len = int(query_len_str)
+
+        domain_blocks = parts[2:]
+
+        for block in domain_blocks:
+            tokens = block.strip().split('|')
+            cdd_id = tokens[0]
+            hit_type = tokens[-1]
+
+            if hit_type == "Nohit" and len(tokens) == 2:
+                cdd_rows.append([query_id, query_len, cdd_id, '', '', '', 'Nohit'])
+                print(f"[INFO] No hit for {query_id} in {cdd_id}")
+                continue
+
+            for token in tokens[1:-1]:
+                if re.match(r"\d+-\d+:\S+", token):
+                    match = re.match(r"(\d+)-(\d+):(\S+)", token)
+                    if match:
+                        qstart, qend, evalue = match.groups()
+                        cdd_rows.append([query_id, query_len, cdd_id, evalue, qstart, qend, hit_type])
 
 cdd_df = pd.DataFrame(cdd_rows, columns=cdd_cols)
-for col in ["evalue","q. start","q. end"]:
-    cdd_df[col] = pd.to_numeric(cdd_df[col], errors='coerce')
-
-# e-value filter
+cdd_df["evalue"] = pd.to_numeric(cdd_df["evalue"], errors='coerce')
+cdd_df[["q. start", "q. end"]] = cdd_df[["q. start", "q. end"]].apply(
+    pd.to_numeric, errors='coerce'
+)
 cdd_df = cdd_df[cdd_df['evalue'] < args.cdde]
 cdd_df = cdd_df.sort_values(by=["Query ID", "q. start"])
 
@@ -116,14 +135,15 @@ os.makedirs(out_dir, exist_ok=True)
 for query in df_all["Query ID"].unique():
     subset = df_all[df_all["Query ID"] == query]
     length = subset["Query Length"].iloc[0]
-    
+
     # Filter CDD annotations for this query
     cdd_subset = cdd_df[cdd_df["Query ID"] == query]
 
     fig, ax = plt.subplots(figsize=(10, 1.5 + 0.5 * (len(subset) + len(cdd_subset))))
 
     # Calculate coverage
-    coverage = [set() for _ in range(length + 1)]
+    coverage = [set() for _ in range(int(length) + 1)]    
+
     for row in subset.itertuples():
         subj = row._2
         start = max(1, row._5)
@@ -148,8 +168,8 @@ for query in df_all["Query ID"].unique():
 
                 # Extend region if it overlaps with a CDD and that CDD has wider boundaries
                 for cdd in cdd_subset.itertuples():
-                    cdd_start = cdd._7
-                    cdd_end = cdd._8
+                    cdd_start = cdd._5
+                    cdd_end = cdd._6
 
                     # If region start is inside CDD and CDD starts earlier → extend start
                     if cdd_start <= region_start <= cdd_end and cdd_start < region_start:
@@ -164,8 +184,8 @@ for query in df_all["Query ID"].unique():
     if in_region:
         region_end = length
         for cdd in cdd_subset.itertuples():
-            cdd_start = cdd._7
-            cdd_end = cdd._8
+            cdd_start = cdd._5
+            cdd_end = cdd._6
             if abs(region_start - cdd_end) <= 1:
                 region_start = min(region_start, cdd_start)
             if abs(region_end - cdd_start) <= 1:
@@ -193,12 +213,12 @@ for query in df_all["Query ID"].unique():
         y_pos = len(subset) + i
         ax.hlines(
             y=y_pos, 
-            xmin=row._7, 
-            xmax=row._8, 
+            xmin=row._5, 
+            xmax=row._6, 
             colors='green', 
             linewidth=5
         )
-        ax.text(length + length*0.1, y_pos, row._3, va='center', color='black')
+        ax.text(length + length*0.1, y_pos, f"{row._3} ({row._7})", va='center', color='black')
 
     # plot subject matches
     for i, row in enumerate(reversed(list(subset.itertuples())), 1):
@@ -221,5 +241,5 @@ for query in df_all["Query ID"].unique():
     ax.set_title(f"Query: {query} (coverage >= {args.cov}, n = {count})")
 
     fig.tight_layout()
-    fig.savefig(f"{out_dir}/{query.replace('/', '_')}_alignment.png")
+    fig.savefig(f"{out_dir}/{query.replace('/', '_')}_sharedRegion.png")
     plt.close()
