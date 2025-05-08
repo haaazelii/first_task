@@ -4,6 +4,8 @@
 
 # for ssearch output and rescued cdd output
 
+# count part of cdd not all
+
 import pandas as pd
 import re
 import argparse
@@ -165,31 +167,34 @@ for query in df_all["Query ID"].unique():
             if in_region:
                 region_end = i - 1
                 in_region = False
+
+                # Extend region if it overlaps with a CDD and that CDD has wider boundaries
+                for cdd in cdd_subset.itertuples():
+                    cdd_start = cdd._5
+                    cdd_end = cdd._6
+
+                    # If region start is inside CDD and CDD starts earlier → extend start
+                    if cdd_start <= region_start <= cdd_end and cdd_start < region_start:
+                        region_start = cdd_start
+
+                    # If region end is inside CDD and CDD ends later → extend end
+                    if cdd_start <= region_end <= cdd_end and cdd_end > region_end:
+                        region_end = cdd_end
                 sig_regions.append((region_start, region_end))
     
+    # Catch final region
+    if in_region:
+        region_end = length
+        for cdd in cdd_subset.itertuples():
+            cdd_start = cdd._5
+            cdd_end = cdd._6
+            if abs(region_start - cdd_end) <= 1:
+                region_start = min(region_start, cdd_start)
+            if abs(region_end - cdd_start) <= 1:
+                region_end = max(region_end, cdd_end)
+        sig_regions.append((region_start, region_end))
 
     # Plot shaded regions
-    # Add all CDD regions directly to sig_regions
-    for row in cdd_subset.itertuples():
-        cdd_start = int(row._5)
-        cdd_end = int(row._6)
-        sig_regions.append((cdd_start, cdd_end))
-    
-    def merge_regions(regions):
-        if not regions:
-            return []
-        regions = sorted(regions)
-        merged = [regions[0]]
-        for current in regions[1:]:
-            last = merged[-1]
-            if current[0] <= last[1]:
-                merged[-1] = (last[0], max(last[1], current[1]))
-            else:
-                merged.append(current)
-        return merged
-
-    sig_regions = merge_regions(sig_regions)
-
     for start, end in sig_regions:
         ax.axvspan(start, end, color='red', alpha=0.2)
         ax.text((start + end)/2, len(subset) + len(cdd_subset) + 1.5, f"{start}-{end}", 
@@ -240,4 +245,3 @@ for query in df_all["Query ID"].unique():
     fig.tight_layout()
     fig.savefig(f"{out_dir}/{query.replace('/', '_')}_sharedRegion.png")
     plt.close()
-
