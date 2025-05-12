@@ -3,6 +3,7 @@
 # by a user-defined fraction of proteins.
 
 # for ssearch output and rescued cdd output
+# minimum shaded region threshold: 30 aa
 
 import pandas as pd
 import re
@@ -134,12 +135,19 @@ os.makedirs(out_dir, exist_ok=True)
 # for each query
 for query in df_all["Query ID"].unique():
     subset = df_all[df_all["Query ID"] == query]
+    subset_plot = (
+        subset
+        .groupby("Subject ID", as_index=False)
+        .agg({"Left Pos":"min", "Right Pos":"max"})
+        .sort_values("Left Pos")   
+        .reset_index(drop=True)
+    )
     length = subset["Query Length"].iloc[0]
 
     # Filter CDD annotations for this query
     cdd_subset = cdd_df[cdd_df["Query ID"] == query]
 
-    fig, ax = plt.subplots(figsize=(10, 1.5 + 0.5 * (len(subset) + len(cdd_subset))))
+    fig, ax = plt.subplots(figsize=(10, 1.5 + 0.5 * (len(subset_plot) + len(cdd_subset))))
 
     # Calculate vote
     vote = [set() for _ in range(int(length) + 1)]    
@@ -191,23 +199,25 @@ for query in df_all["Query ID"].unique():
     sig_regions = merge_regions(sig_regions)
 
     for start, end in sig_regions:
+        if (end - start + 1) < 30:
+            continue
         ax.axvspan(start, end, color='red', alpha=0.2)
-        ax.text((start + end)/2, len(subset) + len(cdd_subset) + 1.5, f"{start}-{end}", 
+        ax.text((start + end)/2, len(subset_plot) + len(cdd_subset) + 1.5, f"{start}-{end}", 
                 ha='center', va='bottom', fontsize=8, color='red')
 
     # plot query sequence
     ax.hlines(
-        y=len(subset) + len(cdd_subset) + 1,
+        y=len(subset_plot) + len(cdd_subset) + 1,
         xmin=1,
         xmax=length,
         colors='black',
         linewidth=5,
     )
-    ax.text(length + length*0.1, len(subset) + len(cdd_subset) + 1, query, va='center')
+    ax.text(length + length*0.1, len(subset_plot) + len(cdd_subset) + 1, query, va='center')
 
     # plot CDD hits
     for i, row in enumerate(reversed(list(cdd_subset.itertuples())), 1):
-        y_pos = len(subset) + i
+        y_pos = len(subset_plot) + i
         ax.hlines(
             y=y_pos, 
             xmin=row._5, 
@@ -218,10 +228,11 @@ for query in df_all["Query ID"].unique():
         ax.text(length + length*0.1, y_pos, f"{row._3} ({row._7})", va='center', color='black')
 
     # plot subject matches
-    for i, row in enumerate(reversed(list(subset.itertuples())), 1):
-        left_pos = row._5 
-        right_pos = row._6  
-        subject = row._2 
+    for i, row in enumerate(reversed(list(subset_plot.itertuples(index=False))), 1):
+        subject   = row[0]
+        left_pos  = row[1]
+        right_pos = row[2]
+
         ax.hlines(
             y=i, 
             xmin=left_pos, 
@@ -231,7 +242,7 @@ for query in df_all["Query ID"].unique():
         )
         ax.text(length + length*0.1, i, subject, va='center')
 
-    ax.set_ylim(0, len(subset) + len(cdd_subset) + 2)
+    ax.set_ylim(0, len(subset_plot) + len(cdd_subset) + 2)
     ax.set_xlim(0, length + length*0.50)
     ax.set_xlabel("Query Sequence Position")
     ax.set_yticks([])
@@ -240,4 +251,3 @@ for query in df_all["Query ID"].unique():
     fig.tight_layout()
     fig.savefig(f"{out_dir}/{query.replace('/', '_')}_sharedRegion.png")
     plt.close()
-
