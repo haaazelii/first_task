@@ -1,0 +1,72 @@
+# ssearch36 -z 11 -k 1000 -E 0.001 -m 8C seqs/tcdb-4.E.1.faa seqs/tcdb-4.E.1.faa
+# SSEARCH 36.3.8h Aug, 2019
+# Query: 4.E.1.1.1-P43585 - 828 aa
+# Database: seqs/tcdb-4.E.1.faa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 6 hits found
+4.E.1.1.1-P43585	4.E.1.1.1-P43585	100.00	828	0	0	1	828	1	828	0	934.3
+4.E.1.1.1-P43585	4.E.1.1.2-Q02725	59.85	807	324	44	1	824	1	834	4.6e-158	544.6
+4.E.1.1.1-P43585	4.E.1.1.3-P47075	34.29	697	458	103	1	783	1	714	4.8e-51	188.9
+4.E.1.1.1-P43585	4.E.1.1.5-S7VV85	28.98	283	201	42	50	353	184	487	2.7e-10	54.4
+4.E.1.1.1-P43585	4.E.1.1.6-Q5CWX6	27.93	759	547	238	1	779	43	1019	6.6e-09	49.5
+4.E.1.1.1-P43585	4.E.1.1.4-U6MIB1	25.15	497	372	97	210	758	195	736	1e-07	45.1
+# SSEARCH 36.3.8h Aug, 2019
+# Query: 4.E.1.1.2-Q02725 - 835 aa
+# Database: seqs/tcdb-4.E.1.faa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 6 hits found
+4.E.1.1.2-Q02725	4.E.1.1.2-Q02725	100.00	835	0	0	1	835	1	835	0	855.4
+4.E.1.1.2-Q02725	4.E.1.1.1-P43585	59.98	807	323	44	1	834	1	824	3.6e-142	491.8
+4.E.1.1.2-Q02725	4.E.1.1.3-P47075	34.63	693	453	123	1	795	1	714	1.1e-46	174.5
+4.E.1.1.2-Q02725	4.E.1.1.5-S7VV85	27.53	316	229	43	49	394	184	512	6.3e-09	49.8
+4.E.1.1.2-Q02725	4.E.1.1.4-U6MIB1	29.13	357	253	93	164	577	142	534	4.8e-07	42.8
+4.E.1.1.2-Q02725	4.E.1.1.6-Q5CWX6	28.77	737	525	244	3	791	91	1019	3.5e-06	40.5
+# SSEARCH 36.3.8h Aug, 2019
+# Query: 4.E.1.1.3-P47075 - 721 aa
+# Database: seqs/tcdb-4.E.1.faa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 6 hits found
+4.E.1.1.3-P47075	4.E.1.1.3-P47075	100.00	721	0	0	1	721	1	721	0	986.2
+4.E.1.1.3-P47075	4.E.1.1.2-Q02725	34.92	693	451	123	1	714	1	795	1e-62	227.7
+4.E.1.1.3-P47075	4.E.1.1.1-P43585	35.06	693	450	111	1	714	1	783	1.8e-61	223.6
+4.E.1.1.3-P47075	4.E.1.1.4-U6MIB1	31.71	492	336	99	177	686	156	728	4.4e-24	99.2
+4.E.1.1.3-P47075	4.E.1.1.5-S7VV85	35.94	512	328	254	45	569	184	936	5.5e-18	79.7
+4.E.1.1.3-P47075	4.E.1.1.5-S7VV85	34.74	95	62	16	618	716	1111	1217	2.1e-05	37.9
+4.E.1.1.3-P47075	4.E.1.1.6-Q5CWX6	28.75	713	508	279	1	719	43	1028	5.2e-14	66.3
+# SSEARCH 36.3.8h Aug, 2019
+# Query: 4.E.1.1.4-U6MIB1 - 751 aa
+# Database: seqs/tcdb-4.E.1.faa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 5 hits found
+4.E.1.1.4-U6MIB1	4.E.1.1.4-U6MIB1	100.00	751	0	0	1	751	1	751	0	1198.0
+4.E.1.1.4-U6MIB1	4.E.1.1.5-S7VV85	47.72	394	206	199	201	599	343	930	4.1e-45	169.9
+4.E.1.1.4-U6MIB1	4.E.1.1.5-S7VV85	32.80	186	125	28	526	723	971	1172	9.5e-08	45.7
+4.E.1.1.4-U6MIB1	4.E.1.1.3-P47075	32.45	490	331	103	156	728	177	686	1.8e-28	113.8
+4.E.1.1.4-U6MIB1	4.E.1.1.2-Q02725	29.13	357	253	93	142	534	164	577	4.1e-12	59.7
+4.E.1.1.4-U6MIB1	4.E.1.1.1-P43585	25.15	497	372	97	195	736	210	758	1.3e-11	58.0
+# SSEARCH 36.3.8h Aug, 2019
+# Query: 4.E.1.1.5-S7VV85 - 1230 aa
+# Database: seqs/tcdb-4.E.1.faa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 6 hits found
+4.E.1.1.5-S7VV85	4.E.1.1.5-S7VV85	100.00	1230	0	0	1	1230	1	1230	0	1897.2
+4.E.1.1.5-S7VV85	4.E.1.1.4-U6MIB1	47.72	394	206	199	343	930	201	599	1.5e-43	164.6
+4.E.1.1.5-S7VV85	4.E.1.1.4-U6MIB1	35.09	114	74	10	1059	1172	600	723	2.9e-07	44.1
+4.E.1.1.5-S7VV85	4.E.1.1.3-P47075	35.94	512	328	254	184	936	45	569	1.1e-20	88.6
+4.E.1.1.5-S7VV85	4.E.1.1.3-P47075	32.99	97	65	12	1111	1217	618	716	1.6e-06	41.6
+4.E.1.1.5-S7VV85	4.E.1.1.1-P43585	27.97	286	206	36	184	487	50	353	8e-15	69.4
+4.E.1.1.5-S7VV85	4.E.1.1.1-P43585	26.64	244	179	34	622	886	386	642	3.6e-06	40.6
+4.E.1.1.5-S7VV85	4.E.1.1.2-Q02725	27.53	316	229	43	184	512	49	394	1.1e-14	68.9
+4.E.1.1.5-S7VV85	4.E.1.1.2-Q02725	26.67	150	110	18	700	852	396	560	5.5e-05	36.7
+4.E.1.1.5-S7VV85	4.E.1.1.6-Q5CWX6	31.61	155	106	21	1051	1226	879	1033	1.2e-08	49.2
+4.E.1.1.5-S7VV85	4.E.1.1.6-Q5CWX6	24.01	304	231	68	147	452	65	434	1.8e-06	42.0
+# SSEARCH 36.3.8h Aug, 2019
+# Query: 4.E.1.1.6-Q5CWX6 - 1078 aa
+# Database: seqs/tcdb-4.E.1.faa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 4 hits found
+4.E.1.1.6-Q5CWX6	4.E.1.1.6-Q5CWX6	100.00	1078	0	0	1	1078	1	1078	0	918.5
+4.E.1.1.6-Q5CWX6	4.E.1.1.3-P47075	28.71	714	509	277	43	1028	1	719	6.5e-08	46.0
+4.E.1.1.6-Q5CWX6	4.E.1.1.1-P43585	27.93	759	547	238	43	1019	1	779	4.8e-06	40.0
+4.E.1.1.6-Q5CWX6	4.E.1.1.2-Q02725	28.77	737	525	244	91	1019	3	791	0.0001	35.6
+# SSEARCH processed 6 queries
